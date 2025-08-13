@@ -17,6 +17,7 @@ It includes puzzles, memory challenges, reflex tests, and logic games — perfec
 - Simple and intuitive controls
 
 ## 📂 Project Structure
+```plaintext
 GAMESTATION/
 │
 ├── js/                        # JavaScript game logic files
