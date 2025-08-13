@@ -10,9 +10,6 @@ It includes puzzles, memory challenges, reflex tests, and logic games — perfec
 - **Memory Flip** – Match pairs of tiles to clear the board.
 - **Target Clicker** – Test your speed and accuracy by hitting moving targets.
 
-## 🌐 Live Demo
-[Play Now](https://gamestation1.netlify.app/)
-
 ## 🚀 Features
 - Instant play in any modern browser
 - No downloads or installations
