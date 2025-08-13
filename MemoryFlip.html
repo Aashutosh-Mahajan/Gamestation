@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Flip - Level Challenge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, #4158D0, #C850C0, #FFCC70);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            min-height: 100vh;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .card {
+            perspective: 1000px;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            border-radius: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+        
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .card-front {
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+        
+        .card-back {
+            background: white;
+            transform: rotateY(180deg);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-logo {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        
+        .card-logo::before, .card-logo::after {
+            content: '';
+            position: absolute;
+            background: white;
+        }
+        
+        .card-logo::before {
+            width: 60%;
+            height: 6px;
+            border-radius: 3px;
+            transform: rotate(45deg);
+        }
+        
+        .card-logo::after {
+            width: 60%;
+            height: 6px;
+            border-radius: 3px;
+            transform: rotate(-45deg);
+        }
+        
+        .card-icon {
+            font-size: 2.5rem;
+            filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
+        }
+        
+        .stats-container {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        @keyframes celebrate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1) rotate(5deg); }
+            100% { transform: scale(1); }
+        }
+        
+        .celebrate {
+            animation: celebrate 0.5s ease;
+        }
+        
+        .game-title {
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 10px rgba(106, 17, 203, 0.2);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            box-shadow: 0 4px 15px rgba(106, 17, 203, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(106, 17, 203, 0.4);
+        }
+        
+        .level-badge {
+            background: linear-gradient(45deg, #FF512F, #F09819);
+            color: white;
+            border-radius: 1rem;
+            padding: 0.5rem 1.5rem;
+            font-weight: 700;
+            box-shadow: 0 4px 10px rgba(255, 81, 47, 0.3);
+        }
+        
+        .progress-bar {
+            height: 10px;
+            border-radius: 5px;
+            background: #e2e8f0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+        
+        .timer-warning {
+            color: #ff4500;
+            animation: pulse 1s infinite;
+        }
+        #leaderboard-entries::-webkit-scrollbar {
+    width: 6px;
+}
+#leaderboard-entries::-webkit-scrollbar-thumb {
+    background-color: #cbd5e0;
+    border-radius: 10px;
+}
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .level-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 2rem 3rem;
+            border-radius: 1rem;
+            text-align: center;
+            z-index: 100;
+        }
+        
+        @media (max-width: 640px) {
+            .card-icon {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body class="p-4">
+    <div class="max-w-4xl mx-auto">
+        <div class="text-center mb-6 animate__animated animate__fadeIn">
+            <h1 class="text-5xl font-bold game-title mb-3">Memory Flip</h1>
+            <p class="text-white text-lg font-medium">Match all cards before time runs out to advance!</p>
+        </div>
+        
+        <div class="stats-container p-6 mb-6 animate__animated animate__fadeInUp">
+            <div class="flex flex-wrap justify-between items-center mb-4">
+                <div class="level-badge mb-2 sm:mb-0">
+                    Level <span id="current-level">1</span>
+                </div>
+                <div class="flex space-x-3">
+                    <button id="restart-btn" class="btn-primary px-5 py-2.5 text-white rounded-lg font-medium">Restart Level</button>
+                    <button id="reset-game-btn" class="bg-gray-200 px-5 py-2.5 rounded-lg font-medium hover:bg-gray-300 transition">Reset Game</button>
+                    <button id="leaderboard-btn" class="bg-yellow-400 hover:bg-yellow-500 px-5 py-2.5 rounded-lg font-medium text-white transition">Leaderboard</button>
+
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-medium text-gray-700">Level Progress</span>
+                    <span class="text-sm font-medium text-gray-700"><span id="level-progress">1</span>/<span id="max-levels">10</span></span>
+                </div>
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill" style="width: 10%"></div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 sm:flex sm:justify-between">
+                <div class="stat-card p-4 flex-1 text-center">
+                    <p class="text-sm text-indigo-800 font-medium">Time Left</p>
+                    <p id="time" class="text-2xl font-bold text-indigo-900">00:00</p>
+                </div>
+                <div class="stat-card p-4 flex-1 text-center">
+                    <p class="text-sm text-indigo-800 font-medium">Flips</p>
+                    <p id="flips" class="text-2xl font-bold text-indigo-900">0</p>
+                </div>
+                <div class="stat-card p-4 flex-1 text-center">
+                    <p class="text-sm text-indigo-800 font-medium">Matches</p>
+                    <p id="matches" class="text-2xl font-bold text-indigo-900">0/6</p>
+                </div>
+                <div class="stat-card p-4 flex-1 text-center">
+                    <p class="text-sm text-indigo-800 font-medium">Score</p>
+                    <p id="score" class="text-2xl font-bold text-indigo-900">0</p>
+                </div>
+                
+            </div>
+            
+        </div>
+        
+        <div id="game-board" class="grid grid-cols-4 gap-4 sm:gap-5 md:gap-6 animate__animated animate__fadeIn"></div>
+        <!-- Leaderboard Modal -->
+<div id="leaderboard-modal" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 hidden animate__animated animate__fadeIn">
+  <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl animate__animated animate__zoomIn">
+    <div class="text-center mb-4">
+      <h2 class="text-3xl font-bold text-indigo-900">🏅 Leaderboard</h2>
+    </div>
+    <div id="leaderboard-entries" class="space-y-4 max-h-80 overflow-y-auto text-left">
+      <!-- Scores will be inserted here -->
+    </div>
+    <button id="close-leaderboard-btn" class="mt-6 w-full py-3.5 bg-gray-200 hover:bg-gray-300 rounded-lg font-medium text-lg">Close</button>
+  </div>
+</div>
+        
+        <!-- Level Complete Modal -->
+        <div id="level-complete-modal" class="fixed inset-0 bg-black bg-opacity-60 backdrop-filter backdrop-blur-sm flex items-center justify-center z-50 hidden animate__animated animate__fadeIn">
+            <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl animate__animated animate__zoomIn">
+                <div class="text-center">
+                    <div class="text-6xl mb-4">🎉</div>
+                    <h2 class="text-3xl font-bold text-indigo-900 mb-3">Level <span id="completed-level">1</span> Complete!</h2>
+                    <p class="text-gray-700 mb-6">You've completed the level in time!</p>
+                    
+                    <div class="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 mb-8">
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="text-center">
+                                <p class="text-sm text-indigo-800 font-medium">Time Left</p>
+                                <p id="level-time-left" class="text-2xl font-bold text-indigo-900">00:00</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-sm text-indigo-800 font-medium">Flips</p>
+                                <p id="level-flips" class="text-2xl font-bold text-indigo-900">0</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-sm text-indigo-800 font-medium">Time Bonus</p>
+                                <p id="time-bonus" class="text-2xl font-bold text-indigo-900">+0</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-sm text-indigo-800 font-medium">Level Score</p>
+                                <p id="level-score" class="text-2xl font-bold text-indigo-900">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button id="next-level-btn" class="w-full py-3.5 btn-primary text-white rounded-lg font-medium text-lg">Next Level</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Level Failed Modal -->
+        <div id="level-failed-modal" class="fixed inset-0 bg-black bg-opacity-60 backdrop-filter backdrop-blur-sm flex items-center justify-center z-50 hidden animate__animated animate__fadeIn">
+            <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl animate__animated animate__zoomIn">
+                <div class="text-center">
+                    <div class="text-6xl mb-4">⏱️</div>
+                    <h2 class="text-3xl font-bold text-red-600 mb-3">Time's Up!</h2>
+                    <p class="text-gray-700 mb-6">You didn't complete the level in time.</p>
+                    
+                    <div class="bg-gradient-to-r from-red-50 to-orange-50 rounded-xl p-6 mb-8">
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="text-center">
+                                <p class="text-sm text-red-800 font-medium">Level</p>
+                                <p id="failed-level" class="text-2xl font-bold text-red-900">1</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-sm text-red-800 font-medium">Matches</p>
+                                <p id="failed-matches" class="text-2xl font-bold text-red-900">0/6</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-sm text-red-800 font-medium">Flips</p>
+                                <p id="failed-flips" class="text-2xl font-bold text-red-900">0</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-sm text-red-800 font-medium">Total Score</p>
+                                <p id="failed-score" class="text-2xl font-bold text-red-900">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <button id="retry-level-btn" class="py-3.5 btn-primary text-white rounded-lg font-medium text-lg">Try Again</button>
+                        <button id="back-to-menu-btn" class="py-3.5 bg-gray-200 rounded-lg font-medium text-lg hover:bg-gray-300 transition">Main Menu</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Game Complete Modal -->
+        <div id="game-complete-modal" class="fixed inset-0 bg-black bg-opacity-60 backdrop-filter backdrop-blur-sm flex items-center justify-center z-50 hidden animate__animated animate__fadeIn">
+            <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl animate__animated animate__zoomIn">
+                <div class="text-center">
+                    <div class="text-6xl mb-4">🏆</div>
+                    <h2 class="text-3xl font-bold text-indigo-900 mb-3">Congratulations!</h2>
+                    <p class="text-gray-700 mb-6">You've completed all levels of Memory Flip!</p>
+                    
+                    <div class="bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl p-6 mb-8">
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="text-center">
+                                <p class="text-sm text-amber-800 font-medium">Levels Completed</p>
+                                <p id="total-levels" class="text-2xl font-bold text-amber-900">10</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-sm text-amber-800 font-medium">Total Flips</p>
+                                <p id="total-flips" class="text-2xl font-bold text-amber-900">0</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-sm text-amber-800 font-medium">Total Matches</p>
+                                <p id="total-matches" class="text-2xl font-bold text-amber-900">0</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-sm text-amber-800 font-medium">Final Score</p>
+                                <p id="final-score" class="text-2xl font-bold text-amber-900">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button id="play-again-btn" class="w-full py-3.5 btn-primary text-white rounded-lg font-medium text-lg">Play Again</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Level Notification -->
+        <div id="level-notification" class="level-notification hidden animate__animated animate__fadeIn">
+            <h2 class="text-4xl font-bold mb-2">Level <span id="notification-level">1</span></h2>
+            <p id="notification-message" class="text-xl">Match all cards before time runs out!</p>
+        </div>
+    </div>
+
+    <script src="js/MemoryFlip.js"></script>
+</body>
+</html>

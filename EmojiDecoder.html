@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎉 Emoji Decoder Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&family=Poppins:wght@400;600;700&display=swap');
+        
+        .fredoka { font-family: 'Fredoka One', cursive; }
+        .poppins { font-family: 'Poppins', sans-serif; }
+        
+        .emoji-bounce {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-gradient {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .success-gradient {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .pulse-animation {
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <!-- Game Container -->
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        
+        <!-- Welcome Screen -->
+        <div id="welcomeScreen" class="text-center">
+            <div class="bg-white rounded-3xl shadow-2xl p-8 mb-8">
+                <h1 class="fredoka text-6xl text-purple-600 mb-4 emoji-bounce">🎉 Emoji Decoder!</h1>
+                <p class="poppins text-xl text-gray-700 mb-6">Can you guess the word, movie, or phrase hidden in these emojis?</p>
+                <div class="text-6xl mb-6">🧩🎮🧠✨</div>
+                <button onclick="showRules()" class="card-gradient text-white px-8 py-4 rounded-full text-xl font-bold poppins hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                    Let's Play! 🚀
+                </button>
+            </div>
+        </div>
+
+        <!-- Rules Screen -->
+        <div id="rulesScreen" class="hidden text-center">
+            <div class="bg-white rounded-3xl shadow-2xl p-8 mb-8">
+                <h2 class="fredoka text-4xl text-purple-600 mb-6">📋 How to Play</h2>
+                <div class="text-left max-w-2xl mx-auto poppins text-lg text-gray-700 space-y-4">
+                    <div class="bg-yellow-100 p-4 rounded-xl">
+                        <strong>Example:</strong> 🧊🚢🌊 = <span class="text-blue-600 font-bold">Titanic</span>
+                    </div>
+                    <div class="bg-green-100 p-4 rounded-xl">
+                        <strong>Example:</strong> 🧠🛑 = <span class="text-red-600 font-bold">Brain Freeze</span>
+                    </div>
+                    <div class="space-y-2 mt-6">
+                        <p><strong>1.</strong> Look at the emoji clue 👀</p>
+                        <p><strong>2.</strong> Type your guess in the box ✍️</p>
+                        <p><strong>3.</strong> Get points for correct answers! 🎯</p>
+                    </div>
+                </div>
+                <button onclick="startGame()" class="success-gradient text-white px-8 py-4 rounded-full text-xl font-bold poppins mt-6 hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                    Start Game! 🎮
+                </button>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="gameScreen" class="hidden">
+            <!-- Progress Bar -->
+            <div class="bg-white rounded-full p-2 mb-6 shadow-lg">
+                <div class="bg-gradient-to-r from-green-400 to-blue-500 h-4 rounded-full transition-all duration-500" id="progressBar" style="width: 0%"></div>
+            </div>
+            
+            <!-- Score Display -->
+            <div class="text-center mb-6">
+                <div class="bg-white rounded-2xl shadow-lg inline-block px-6 py-3">
+                    <span class="poppins text-lg font-bold text-gray-700">Score: </span>
+                    <span id="score" class="fredoka text-2xl text-purple-600">0</span>
+                    <span class="poppins text-lg font-bold text-gray-700"> / </span>
+                    <span id="totalQuestions" class="fredoka text-2xl text-purple-600">20</span>
+                </div>
+            </div>
+
+            <!-- Game Card -->
+            <div class="bg-white rounded-3xl shadow-2xl p-8 text-center">
+                <div class="mb-4">
+                    <span class="poppins text-lg font-semibold text-gray-600">Question </span>
+                    <span id="currentQuestion" class="fredoka text-xl text-purple-600">1</span>
+                    <span class="poppins text-lg font-semibold text-gray-600"> of </span>
+                    <span class="fredoka text-xl text-purple-600">20</span>
+                </div>
+                
+                <h3 class="fredoka text-3xl text-purple-600 mb-6">🔍 Decode the Emoji</h3>
+                
+                <!-- Emoji Display -->
+                <div id="emojiDisplay" class="text-8xl mb-6 emoji-bounce">🧊🚢🌊</div>
+                
+                <!-- Category -->
+                <div class="bg-yellow-100 rounded-xl p-3 mb-6 inline-block">
+                    <span class="poppins font-semibold text-gray-700">Category: </span>
+                    <span id="category" class="poppins font-bold text-yellow-700">Movie</span>
+                </div>
+                
+
+                
+                <!-- Input Section -->
+                <div class="mb-6">
+                    <input type="text" id="guessInput" placeholder="Type your guess here..." 
+                           class="w-full max-w-md px-6 py-4 text-xl text-center rounded-2xl border-4 border-purple-200 focus:border-purple-500 focus:outline-none poppins"
+                           onkeypress="handleKeyPress(event)">
+                </div>
+                
+                <!-- Submit Button -->
+                <button onclick="submitGuess()" id="submitBtn" 
+                        class="card-gradient text-white px-8 py-4 rounded-full text-xl font-bold poppins hover:shadow-lg transform hover:scale-105 transition-all duration-300 mb-4">
+                    Submit Guess! 🎯
+                </button>
+                
+                <!-- Feedback -->
+                <div id="feedback" class="hidden mb-4"></div>
+                
+                <!-- Next Button -->
+                <button onclick="nextQuestion()" id="nextBtn" 
+                        class="hidden success-gradient text-white px-8 py-4 rounded-full text-xl font-bold poppins hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                    Next Question! ➡️
+                </button>
+            </div>
+        </div>
+
+        <!-- Final Screen -->
+        <div id="finalScreen" class="hidden text-center">
+            <div class="bg-white rounded-3xl shadow-2xl p-8">
+                <h2 class="fredoka text-5xl text-purple-600 mb-6">🎉 Game Complete!</h2>
+                <div class="text-6xl mb-6">🏆</div>
+                <div class="mb-6">
+                    <p class="poppins text-2xl text-gray-700 mb-2">Your Final Score:</p>
+                    <p id="finalScore" class="fredoka text-6xl text-purple-600">0/10</p>
+                </div>
+                <div id="scoreMessage" class="poppins text-xl text-gray-600 mb-6"></div>
+                <button onclick="restartGame()" 
+                        class="card-gradient text-white px-8 py-4 rounded-full text-xl font-bold poppins hover:shadow-lg transform hover:scale-105 transition-all duration-300 mr-4">
+                    Play Again! 🔄
+                </button>
+                <button onclick="shareScore()" 
+                        class="success-gradient text-white px-8 py-4 rounded-full text-xl font-bold poppins hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                    Share Score! 📱
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/EmojiDecoder.js"></script>
+</body>
+</html>

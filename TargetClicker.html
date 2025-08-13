@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Target Clicker: Ultimate Challenge</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 8s ease infinite;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      overflow-x: hidden;
+    }
+
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 2rem;
+      text-shadow: 3px 3px 6px rgba(0,0,0,0.4);
+      background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+      background-size: 400% 400%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradientShift 3s ease infinite;
+      text-align: center;
+    }
+
+    .game-container {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(15px);
+      border-radius: 25px;
+      padding: 2.5rem;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+      border: 2px solid rgba(255,255,255,0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .game-container::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+      animation: shimmer 3s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    }
+
+    .level-info {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .level-display {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #feca57;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+      margin-bottom: 0.5rem;
+    }
+
+    .level-progress {
+      width: 100%;
+      height: 12px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+
+    .level-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #00b894, #00cec9, #74b9ff);
+      border-radius: 6px;
+      transition: width 0.5s ease;
+      box-shadow: 0 0 10px rgba(0, 184, 148, 0.5);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .stat-item {
+      font-size: 1.1rem;
+      font-weight: bold;
+      padding: 0.8rem;
+      background: rgba(255,255,255,0.2);
+      border-radius: 12px;
+      backdrop-filter: blur(8px);
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.3);
+      transition: transform 0.3s ease;
+    }
+
+    .stat-item:hover {
+      transform: translateY(-2px);
+    }
+
+    #gameArea {
+      position: relative;
+      width: 700px;
+      height: 450px;
+      background: linear-gradient(45deg, #74b9ff, #0984e3, #6c5ce7);
+      background-size: 400% 400%;
+      animation: gameAreaGradient 6s ease infinite;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: inset 0 4px 15px rgba(0,0,0,0.3), 0 8px 25px rgba(0,0,0,0.2);
+      border: 3px solid rgba(255,255,255,0.4);
+      position: relative;
+      z-index: 2;
+    }
+
+    @keyframes gameAreaGradient {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .target {
+      position: absolute;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 3px solid white;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: white;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    }
+
+    .target.normal {
+      width: 50px;
+      height: 50px;
+      background: radial-gradient(circle, #ff6b6b, #e55656);
+      animation: pulse 1.5s infinite;
+    }
+
+    .target.bonus {
+      width: 60px;
+      height: 60px;
+      background: radial-gradient(circle, #feca57, #fdcb6e);
+      animation: bonusPulse 1s infinite;
+      font-size: 1.2rem;
+    }
+
+    .target.speed {
+      width: 40px;
+      height: 40px;
+      background: radial-gradient(circle, #74b9ff, #0984e3);
+      animation: speedSpin 0.8s linear infinite;
+    }
+
+    .target.mega {
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle, #a29bfe, #6c5ce7);
+      animation: megaPulse 0.7s infinite;
+      font-size: 1.5rem;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    @keyframes bonusPulse {
+      0%, 100% { transform: scale(1) rotate(0deg); box-shadow: 0 0 15px #feca57; }
+      50% { transform: scale(1.1) rotate(180deg); box-shadow: 0 0 25px #feca57; }
+    }
+
+    @keyframes speedSpin {
+      0% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(180deg) scale(1.1); }
+      100% { transform: rotate(360deg) scale(1); }
+    }
+
+    @keyframes megaPulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 20px #a29bfe; }
+      50% { transform: scale(1.15); box-shadow: 0 0 35px #a29bfe; }
+    }
+
+    .target:hover {
+      transform: scale(1.15) !important;
+    }
+
+    @keyframes targetHit {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.4); }
+      100% { transform: scale(0); opacity: 0; }
+    }
+
+    .target.hit {
+      animation: targetHit 0.4s ease-out;
+    }
+
+    .score-popup {
+      position: absolute;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #feca57;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+      pointer-events: none;
+      animation: scoreFloat 1s ease-out forwards;
+      z-index: 1000;
+    }
+
+    @keyframes scoreFloat {
+      0% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-50px) scale(1.2); }
+    }
+
+    .power-up-indicator {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(255,255,255,0.9);
+      color: #333;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: bold;
+      display: none;
+      animation: powerUpGlow 1s infinite;
+    }
+
+    @keyframes powerUpGlow {
+      0%, 100% { box-shadow: 0 0 10px rgba(255,255,255,0.5); }
+      50% { box-shadow: 0 0 20px rgba(255,255,255,0.8); }
+    }
+
+    #startBtn, .play-again-btn {
+      padding: 15px 35px;
+      font-size: 1.3rem;
+      font-weight: bold;
+      background: linear-gradient(45deg, #00b894, #00cec9);
+      color: white;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 20px rgba(0, 184, 148, 0.4);
+      margin-top: 1.5rem;
+      position: relative;
+      z-index: 2;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    #startBtn:hover, .play-again-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0, 184, 148, 0.6);
+    }
+
+    #endScreen {
+      display: none;
+      text-align: center;
+      margin-top: 2rem;
+      padding: 2.5rem;
+      background: rgba(255,255,255,0.15);
+      border-radius: 20px;
+      backdrop-filter: blur(15px);
+      border: 2px solid rgba(255,255,255,0.3);
+      position: relative;
+      z-index: 2;
+    }
+
+    #finalScore {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      color: #feca57;
+      text-shadow: 3px 3px 6px rgba(0,0,0,0.4);
+    }
+
+    .level-complete {
+      background: linear-gradient(45deg, #00b894, #00cec9);
+      color: white;
+      padding: 1rem;
+      border-radius: 15px;
+      margin-bottom: 1rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    .combo-display {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 3rem;
+      font-weight: bold;
+      color: #ff6b6b;
+      text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
+      pointer-events: none;
+      display: none;
+      animation: comboShow 2s ease-out;
+      z-index: 1000;
+    }
+
+    @keyframes comboShow {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+      20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+      80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+    }
+
+    @media (max-width: 768px) {
+      #gameArea {
+        width: 90vw;
+        max-width: 500px;
+        height: 350px;
+      }
+      
+      h1 {
+        font-size: 2.2rem;
+      }
+      
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>🎯 Target Clicker: Ultimate Challenge</h1>
+  
+  <div class="game-container">
+    <div class="level-info">
+      <div class="level-display" id="levelDisplay">Level 1</div>
+      <div class="level-progress">
+        <div class="level-progress-bar" id="levelProgressBar"></div>
+      </div>
+    </div>
+    
+    <div class="stats">
+      <div class="stat-item" id="score">Score: 0</div>
+      <div class="stat-item" id="timer">Time: 60</div>
+      <div class="stat-item" id="level">Level: 1</div>
+      <div class="stat-item" id="combo">Combo: 0</div>
+      <div class="stat-item" id="highScore">Best: 0</div>
+    </div>
+    
+    <button id="startBtn">🚀 Start Adventure</button>
+    
+    <div id="gameArea">
+      <div class="power-up-indicator" id="powerUpIndicator"></div>
+      <div class="combo-display" id="comboDisplay"></div>
+    </div>
+    
+    <div id="endScreen">
+      <div id="finalScore"></div>
+      <div id="levelComplete"></div>
+      <div id="performance"></div>
+      <button class="play-again-btn" onclick="startGame()">🔄 Play Again</button>
+    </div>
+  </div>
+
+  <script src="js/targetclicker.js"></script>
+  </body>
+  </html>
+   
