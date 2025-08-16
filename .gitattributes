@@ -1,3 +1,10 @@
 # Count only JavaScript files
 *.js linguist-detectable=true
 *.js linguist-language=JavaScript
+
+# Ignore everything else
+*.py linguist-detectable=false
+*.html linguist-detectable=false
+*.css linguist-detectable=false
+*.json linguist-detectable=false
+*.md linguist-detectable=false
