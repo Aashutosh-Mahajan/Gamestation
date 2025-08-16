@@ -1,0 +1,3 @@
+# Count only JavaScript files
+*.js linguist-detectable=true
+*.js linguist-language=JavaScript
